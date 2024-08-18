@@ -6,8 +6,9 @@
     <parent>
         <groupId>com.example</groupId>
         <artifactId>L20-major-project</artifactId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>0.0.2-SNAPSHOT</version>
     </parent>
+    <packaging>jar</packaging>
 
     <artifactId>common-code</artifactId>
 

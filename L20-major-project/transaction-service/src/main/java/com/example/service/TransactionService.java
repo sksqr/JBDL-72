@@ -2,6 +2,7 @@ package com.example.service;
 
 import com.example.TxnInitPayload;
 import com.example.dto.TxnRequestDto;
+import com.example.dto.TxnStatusDto;
 import com.example.entity.Transaction;
 import com.example.enums.TxnStatusEnum;
 import com.example.repo.TxnRepo;
@@ -52,5 +53,15 @@ public class TransactionService {
         Future<SendResult<String,Object>> future  = kafkaTemplate.send(txnInitTopic,transaction.getFromUserId().toString(),txnInitPayload);
         LOGGER.info("Pushed txnInitPayload to kafka: {}",future.get());
         return transaction.getTxnId();
+    }
+
+    public TxnStatusDto getStatus(String txnId){
+        Transaction transaction = txnRepo.findByTxnId(txnId);
+        TxnStatusDto txnStatusDto = new TxnStatusDto();
+        if(transaction != null){
+            txnStatusDto.setStatus(transaction.getStatus().toString());
+            txnStatusDto.setReason(transaction.getReason());
+        }
+        return txnStatusDto;
     }
 }

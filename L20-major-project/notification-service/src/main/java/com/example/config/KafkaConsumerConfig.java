@@ -1,6 +1,7 @@
 package com.example.config;
 
 import com.example.UserCreatedPayload;
+import com.example.WalletUpdatedPayload;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -34,6 +35,22 @@ public class KafkaConsumerConfig {
         simpleMailMessage.setText("Hi "+userCreatedPayload.getUserName()+", Welcome in JBDL wallet world");
         simpleMailMessage.setCc("admin.jbdl@yopmail.com");
         simpleMailMessage.setTo(userCreatedPayload.getUserEmail());
+        javaMailSender.send(simpleMailMessage);
+        MDC.clear();
+    }
+
+
+    @KafkaListener(topics = "${wallet.updated.topic}", groupId = "email")
+    public void consumeWalletUpdatedTopic(ConsumerRecord payload) throws JsonProcessingException {
+        WalletUpdatedPayload walletUpdatedPayload = OBJECT_MAPPER.readValue(payload.value().toString(), WalletUpdatedPayload.class);
+        MDC.put("requestId",walletUpdatedPayload.getRequestId());
+        LOGGER.info("Read from kafka : {}",walletUpdatedPayload);
+        SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
+        simpleMailMessage.setFrom("jbdl.ewallet@gmail.com");
+        simpleMailMessage.setSubject("JBDL Wallet Updated");
+        simpleMailMessage.setText("Hi, Your updated balance is: "+walletUpdatedPayload.getBalance());
+        simpleMailMessage.setCc("admin.jbdl@yopmail.com");
+        simpleMailMessage.setTo(walletUpdatedPayload.getUserEmail());
         javaMailSender.send(simpleMailMessage);
         MDC.clear();
     }
